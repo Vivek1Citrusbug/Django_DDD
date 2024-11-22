@@ -3,7 +3,7 @@ from django.views.generic import DetailView, View
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from blogs.models import BlogPost
+from blog_post_management_system.blogs.infrasrtucture.models import BlogPost
 from django.views.generic import DetailView, View
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator

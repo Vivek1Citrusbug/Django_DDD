@@ -9,7 +9,7 @@ from django.views.generic import (
     UpdateView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import BlogPost
+from ..infrasrtucture.models import BlogPost
 from .forms import BlogPostForm
 
 
