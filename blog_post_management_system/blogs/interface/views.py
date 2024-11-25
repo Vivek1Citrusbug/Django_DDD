@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 from django.views import View
 from django.urls import reverse_lazy
@@ -9,27 +10,40 @@ from django.views.generic import (
     UpdateView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from blogs.infrastructure.models import BlogPost
 from ..application.forms import BlogPostForm
-from blogs.application.services import BlogPostService
-
+from blogs.application.services import BlogPostAppService
+from blogs.domain.models import BlogPost
 
 class BlogPostListingView(LoginRequiredMixin, ListView):
+    """Handles listing all posts"""
+
     template_name = "blogs/blog_list.html"
     context_object_name = "posts"
+    service: BlogPostAppService
+    model:BlogPost
+    ordering = ["-date_published"]
 
     def get_queryset(self):
-        service = BlogPostService()
+        service = BlogPostAppService()
         return service.list_posts()
 
 
 class BlogDetailView(LoginRequiredMixin, DetailView):
+    """Handles listing specific post"""
+
     template_name = "blogs/blog_detail.html"
     context_object_name = "post"
+    services: BlogPostAppService
+    model: BlogPost
 
     def get_object(self, **kwargs):
-        service = BlogPostService()
-        return service.get_post_details(kwargs["pk"])
+        pk = self.kwargs.get("pk")
+        
+        if not pk:
+            raise Http404("Post not found.")
+        
+        service = BlogPostAppService()
+        return service.get_post_details(pk)
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
     """Handles the creation of a new blog post."""
@@ -37,15 +51,14 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
     form_class = BlogPostForm
     template_name = "blogs/blog_form.html"
     success_url = reverse_lazy("blog_list")
+    services: BlogPostAppService
+    model: BlogPost
+    context_object_name = "post"
 
     def form_valid(self, form):
-        # Use the service to handle blog creation
-        blog_service = BlogPostService()
-        blog_service.create_blog(
-            author=self.request.user,
-            title=form.cleaned_data["title"],
-            content=form.cleaned_data["content"],
-        )
+        blog_service = BlogPostAppService()
+        print("Current requesting user : ",self.request.user)
+        blog_service.create_post(title=form.cleaned_data["title"], content=form.cleaned_data["content"], author = self.request.user)
         return super().form_valid(form)
 
 
@@ -55,36 +68,61 @@ class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     form_class = BlogPostForm
     template_name = "blogs/blog_form.html"
     success_url = reverse_lazy("blog_list")
+    services: BlogPostAppService
+    model: BlogPost
+    context_object_name = "post"
 
     def get_object(self, queryset=None):
-        # Fetch the blog using the service
-        blog_service = BlogPostService()
-        return blog_service.get_blog_by_id(self.kwargs["pk"])
+
+        blog_service = BlogPostAppService()
+        return blog_service.get_post_details(self.kwargs["pk"])
 
     def test_func(self):
-        # Check if the current user is the blog's author
-        blog_service = BlogPostService()
-        blog = blog_service.get_blog_by_id(self.kwargs["pk"])
+    
+        blog_service = BlogPostAppService()
+        blog = blog_service.get_post_details(self.kwargs["pk"])
         return blog.author == self.request.user
 
 
-class BlogDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """Handles deleting a blog post."""
 
     template_name = "blogs/blog_confirm_delete.html"
     success_url = reverse_lazy("blog_list")
-
+    services: BlogPostAppService
+    model: BlogPost
+    context_object_name = "post"
+    
     def get_object(self, queryset=None):
-        # Fetch the blog using the service
-        blog_service = BlogPostService()
-        return blog_service.get_blog_by_id(self.kwargs["pk"])
+
+        blog_service = BlogPostAppService()
+        return blog_service.get_post_details(self.kwargs["pk"])
 
     def test_func(self):
-        # Check if the current user is the blog's author or staff
-        blog_service = BlogPostService()
-        blog = blog_service.get_blog_by_id(self.kwargs["pk"])
+    
+        blog_service = BlogPostAppService()
+        blog = blog_service.get_post_details(self.kwargs["pk"])
         return blog.author == self.request.user or self.request.user.is_staff
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # class BlogPostListingView(LoginRequiredMixin, ListView):
 #     """This view is used to list all the blogs"""
 

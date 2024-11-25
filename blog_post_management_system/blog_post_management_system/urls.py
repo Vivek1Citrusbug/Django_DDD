@@ -25,7 +25,7 @@ urlpatterns = [
     path("",views.home_page,name = 'home_page'),
     path('admin/', admin.site.urls, name = "admin_view"),
     path("accounts/",include("accounts.urls")),
-    path("blogs/",include("blogs.urls")),
+    path("blogs/",include("blogs.interface.urls")),
     path("comments/",include("comments.urls")),
     path("likes/",include("likes.urls")),
 ]
