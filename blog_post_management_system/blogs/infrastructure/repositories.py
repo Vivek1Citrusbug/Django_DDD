@@ -1,11 +1,18 @@
-# post/infrastructure/repositories.py
-from models import BlogPost
+from ..domain.repositories import BlogPostRepository
+from domain.models import BlogPost
 
-class BlogPostRepository:
-    @staticmethod
-    def get_post_by_id(post_id):
-        return BlogPost.objects.get(id=post_id)
 
-    @staticmethod
-    def save_post(post):
+class DjangoBlogPostRepository(BlogPostRepository):
+    """Implementation of BlogPostRepository using Django ORM"""
+
+    def get_all_posts(self):
+        return BlogPost.objects.all()
+
+    def get_post_by_id(self, post_id):
+        return BlogPost.objects.filter(id=post_id).first()
+
+    def save_post(self, post):
         post.save()
+
+    def delete_post(self, post_id):
+        BlogPost.objects.filter(id=post_id).delete()
