@@ -1,5 +1,5 @@
 from django.db import models
-from blog_post_management_system.blogs.infrasrtucture.models import BlogPost
+from blogs.domain.models import BlogPost
 from django.contrib.auth.models import User
 from django.utils import timezone
 

@@ -4,7 +4,7 @@ from django.views.generic import CreateView, ListView, DeleteView, RedirectView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import UserComments
-from blog_post_management_system.blogs.infrasrtucture.models import BlogPost
+from blogs.domain.models import BlogPost
 from .forms import CommentForm
 from django.shortcuts import get_object_or_404
 
