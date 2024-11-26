@@ -14,13 +14,14 @@ from ..application.forms import BlogPostForm
 from blogs.application.services import BlogPostAppService
 from blogs.domain.models import BlogPost
 
+
 class BlogPostListingView(LoginRequiredMixin, ListView):
     """Handles listing all posts"""
 
     template_name = "blogs/blog_list.html"
     context_object_name = "posts"
     service: BlogPostAppService
-    model:BlogPost
+    model: BlogPost
     ordering = ["-date_published"]
 
     def get_queryset(self):
@@ -35,24 +36,23 @@ class BlogDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "post"
     services: BlogPostAppService
     model: BlogPost
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = self.get_object()
         context["likes_count"] = post.likes.count()
-        context["user_liked"] = post.likes.filter(
-            user=self.request.user
-        ).exists()  
+        context["user_liked"] = post.likes.filter(user=self.request.user).exists()
         return context
 
     def get_object(self, **kwargs):
         pk = self.kwargs.get("pk")
-        
+
         if not pk:
             raise Http404("Post not found.")
-        
+
         service = BlogPostAppService()
         return service.get_post_details(pk)
+
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
     """Handles the creation of a new blog post."""
@@ -66,8 +66,12 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         blog_service = BlogPostAppService()
-        print("Current requesting user : ",self.request.user)
-        blog_service.create_post(title=form.cleaned_data["title"], content=form.cleaned_data["content"], author = self.request.user)
+        print("Current requesting user : ", self.request.user)
+        blog_service.create_post(
+            title=form.cleaned_data["title"],
+            content=form.cleaned_data["content"],
+            author=self.request.user,
+        )
         return super().form_valid(form)
 
 
@@ -87,7 +91,7 @@ class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return blog_service.get_post_details(self.kwargs["pk"])
 
     def test_func(self):
-    
+
         blog_service = BlogPostAppService()
         blog = blog_service.get_post_details(self.kwargs["pk"])
         return blog.author == self.request.user
@@ -101,35 +105,17 @@ class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     services: BlogPostAppService
     model: BlogPost
     context_object_name = "post"
-    
+
     def get_object(self, queryset=None):
 
         blog_service = BlogPostAppService()
         return blog_service.get_post_details(self.kwargs["pk"])
 
     def test_func(self):
-    
+
         blog_service = BlogPostAppService()
         blog = blog_service.get_post_details(self.kwargs["pk"])
         return blog.author == self.request.user or self.request.user.is_staff
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # class BlogPostListingView(LoginRequiredMixin, ListView):
@@ -154,7 +140,7 @@ class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 #         context["likes_count"] = post.likes.count()
 #         context["user_liked"] = post.likes.filter(
 #             user=self.request.user
-#         ).exists()  
+#         ).exists()
 #         return context
 
 

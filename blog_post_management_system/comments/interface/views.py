@@ -3,13 +3,12 @@ from django.shortcuts import render
 from django.views.generic import CreateView, ListView, DeleteView, RedirectView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import UserComments
+from comments.domain.models import UserComments
 from blogs.domain.models import BlogPost
-from .forms import CommentForm
+from comments.application.forms import CommentForm
 from django.shortcuts import get_object_or_404
-
-# Create your views here.
-
+from blogs.application.services import BlogPostAppService
+from comments.application.services import CommentAppService
 
 class CommentListView(LoginRequiredMixin, ListView):
     """This view is used to list user comments"""
@@ -17,15 +16,28 @@ class CommentListView(LoginRequiredMixin, ListView):
     model = UserComments
     template_name = "comments/list_comments.html"
     context_object_name = "comments"
+    # services: CommentAppService
 
     def get_queryset(self):
-        post = get_object_or_404(BlogPost, pk=self.kwargs["pk"])
-        return UserComments.objects.filter(post_id=post).order_by("-date_posted")
-
+        # post = get_object_or_404(BlogPost, pk=self.kwargs["pk"])
+       
+        PostsService = BlogPostAppService()
+        post = PostsService.get_post_details(self.kwargs["pk"]) 
+        CommentService = CommentAppService()
+        print("post printed : ",post)
+        return CommentService.get_comments_application(post)
+        # return UserComments.objects.filter(post_id=post).order_by("-date_posted")
+        
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["post"] = BlogPost.objects.get(id=self.kwargs["pk"])
+        PostService = BlogPostAppService()
+        context["post"] = PostService.get_post_details(post_id=self.kwargs["pk"])
+        # context["post"] = BlogPost.objects.get(id=self.kwargs["pk"])
+        # print("context post printed : ",context["post"])
         return context
+        
+        
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
@@ -34,10 +46,17 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     model = UserComments
     template_name = "comments/create_comment.html"
     form_class = CommentForm
+    # service = BlogPostAppService()
 
     def form_valid(self, form):
+        PostService = BlogPostAppService()
+        post = PostService.get_post_details(post_id=self.kwargs["pk"])
+        # print("######################## Post ############################: ",post)
+        # print("######################## User ############################: ",self.request.user)
         form.instance.user_id = self.request.user
-        form.instance.post_id = BlogPost.objects.get(pk=self.kwargs["pk"])
+        form.instance.post_id = post
+
+        # form.instance.post_id = BlogPost.objects.get(pk=self.kwargs["pk"])
         return super().form_valid(form)
 
     def get_success_url(self):

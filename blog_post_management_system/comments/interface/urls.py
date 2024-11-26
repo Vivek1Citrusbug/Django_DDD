@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import CommentListView,CommentCreateView,CommentDeleteView
+from comments.interface.views import CommentListView,CommentCreateView,CommentDeleteView
 
 urlpatterns = [
     path("<int:pk>/", CommentListView.as_view(), name="list_comment"),
