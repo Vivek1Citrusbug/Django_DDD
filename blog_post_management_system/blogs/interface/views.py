@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
 from django.urls import reverse_lazy
@@ -72,7 +72,7 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
             content=form.cleaned_data["content"],
             author=self.request.user,
         )
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.success_url)
 
 
 class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
