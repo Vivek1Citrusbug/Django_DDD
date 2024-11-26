@@ -35,6 +35,15 @@ class BlogDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "post"
     services: BlogPostAppService
     model: BlogPost
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = self.get_object()
+        context["likes_count"] = post.likes.count()
+        context["user_liked"] = post.likes.filter(
+            user=self.request.user
+        ).exists()  
+        return context
 
     def get_object(self, **kwargs):
         pk = self.kwargs.get("pk")
