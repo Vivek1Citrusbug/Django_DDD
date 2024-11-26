@@ -16,4 +16,11 @@ class BlogPost(models.Model):
         return self.title
     
    
-
+class BlogPostFactory:
+    @staticmethod
+    def create_blog_factory(title, content, author):
+        """
+        Factory method to create a new blog post.
+        """
+        blog_post = BlogPost(title=title, content=content, author=author)
+        return blog_post

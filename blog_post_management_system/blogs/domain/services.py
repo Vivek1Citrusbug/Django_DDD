@@ -1,5 +1,5 @@
 from ..domain.repositories import BlogPostRepository
-from .models import BlogPost
+from .models import BlogPost,BlogPostFactory
 
 class BlogPostService:
     """Domain service for blog post use cases"""
@@ -7,7 +7,11 @@ class BlogPostService:
     @staticmethod
     def get_repo():
         return BlogPost.objects
-
+    
+    @staticmethod
+    def get_factory():
+        return BlogPostFactory
+    
     def get_post_by_id(self, post_id):
         """Retrieve a single post by its ID."""
         
@@ -23,7 +27,8 @@ class BlogPostService:
 
     def create_post_domain(self, title, content, author):
         """Create a new blog post."""
-        post = BlogPost(title=title, content=content, author=author)
+        post = self.get_factory().create_blog_factory(title,content,author)
+        # post = BlogPost(title=title, content=content, author=author)
         post.save()
         return post
 
