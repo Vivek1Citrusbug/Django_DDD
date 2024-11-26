@@ -72,5 +72,8 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """
         Ensure only the comment's author or admin can delete the comment.
         """
+        CommentService = CommentAppService()
         comment = self.get_object()
-        return self.request.user == comment.user_id or self.request.user.is_staff or self.request.user == comment.post_id.author
+        print("Comment ##################",comment)
+        return CommentService.delete_comment_application(comment,self.request.user)
+        # return self.request.user == comment.user_id or self.request.user.is_staff or self.request.user == comment.post_id.author

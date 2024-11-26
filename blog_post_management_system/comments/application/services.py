@@ -10,3 +10,6 @@ class CommentAppService:
         """Service to get comments by post id"""
         print("In application layer : ",post)
         return self.service.get_comment_domain(post)
+
+    def delete_comment_application(self,commentObj,currentUserObj):
+        return self.service.delete_comment_instance(commentObj,currentUserObj)
