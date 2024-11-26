@@ -51,8 +51,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         PostService = BlogPostAppService()
         post = PostService.get_post_details(post_id=self.kwargs["pk"])
-        # print("######################## Post ############################: ",post)
-        # print("######################## User ############################: ",self.request.user)
         form.instance.user_id = self.request.user
         form.instance.post_id = post
 
