@@ -11,7 +11,6 @@ class CommentDomainService:
     def get_comment_domain(self,post):
         print("In Domain layer : ",post)
         # get_object_or_404(BlogPost, pk=self.kwargs["pk"])
-        return self.get_repo().all()
-    # filter(post_id=post).order_by("-date_posted")
+        return self.get_repo().filter(post_id = post).order_by("-date_posted")
 
     

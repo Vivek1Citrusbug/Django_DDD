@@ -22,10 +22,10 @@ class CommentListView(LoginRequiredMixin, ListView):
         # post = get_object_or_404(BlogPost, pk=self.kwargs["pk"])
        
         PostsService = BlogPostAppService()
-        post = PostsService.get_post_details(self.kwargs["pk"]) 
         CommentService = CommentAppService()
-        print("post printed : ",post)
-        return CommentService.get_comments_application(post)
+        post = PostsService.get_post_details(post_id=self.kwargs["pk"]) 
+        print("post printed : ",post.content,post.date_published,post.author)
+        return CommentService.get_comments_application(self.kwargs["pk"])
         # return UserComments.objects.filter(post_id=post).order_by("-date_posted")
         
     
@@ -37,8 +37,6 @@ class CommentListView(LoginRequiredMixin, ListView):
         # print("context post printed : ",context["post"])
         return context
         
-        
-
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     """This view is used to create new user comments"""

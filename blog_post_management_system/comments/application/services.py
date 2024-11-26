@@ -9,4 +9,4 @@ class CommentAppService:
     def get_comments_application(self,post):
         """Service to get comments by post id"""
         print("In application layer : ",post)
-        self.service.get_comment_domain(post)
+        return self.service.get_comment_domain(post)

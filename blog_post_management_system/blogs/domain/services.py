@@ -28,7 +28,6 @@ class BlogPostService:
     def create_post_domain(self, title, content, author):
         """Create a new blog post."""
         post = self.get_factory().create_blog_factory(title,content,author)
-        # post = BlogPost(title=title, content=content, author=author)
         post.save()
         return post
 
