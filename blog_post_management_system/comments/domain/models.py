@@ -13,6 +13,3 @@ class UserComments(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.CharField(max_length=256)
     date_posted = models.DateField(default=timezone.now)
-
-    # def __str__(self):
-    #     return f"Comment by {self.user_id} on {self.post_id}"

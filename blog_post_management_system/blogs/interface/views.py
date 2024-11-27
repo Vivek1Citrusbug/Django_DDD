@@ -28,8 +28,7 @@ class BlogPostListingView(LoginRequiredMixin, ListView):
         self.service = BlogPostAppService()
 
     def get_queryset(self):
-        
-        return self.service.list_posts()
+        return self.service.list_posts_application()
 
 
 class BlogDetailView(LoginRequiredMixin, DetailView):
@@ -52,11 +51,9 @@ class BlogDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self, **kwargs):
         pk = self.kwargs.get("pk")
-
         if not pk:
             raise Http404("Post not found.")
-
-        return self.service.get_post_details(pk)
+        return self.service.get_post_details_application(pk)
 
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
@@ -74,7 +71,7 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         print("Current requesting user : ", self.request.user)
-        self.service.create_post(
+        self.service.create_post_application(
             title=form.cleaned_data["title"],
             content=form.cleaned_data["content"],
             author=self.request.user,
@@ -96,12 +93,10 @@ class BlogUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         self.service = BlogPostAppService()
 
     def get_object(self, queryset=None):
-
-        return self.service.get_post_details(self.kwargs["pk"])
+        return self.service.get_post_details_application(self.kwargs["pk"])
 
     def test_func(self):
-
-        blog = self.service.get_post_details(self.kwargs["pk"])
+        blog = self.service.get_post_details_application(self.kwargs["pk"])
         return blog.author == self.request.user
 
 
@@ -118,11 +113,9 @@ class BlogPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         self.service = BlogPostAppService()
 
     def get_object(self, queryset=None):
-
-        return self.service.get_post_details(self.kwargs["pk"])
+        return self.service.get_post_details_application(self.kwargs["pk"])
 
     def test_func(self):
-
-        blog = self.service.get_post_details(self.kwargs["pk"])
+        blog = self.service.get_post_details_application(self.kwargs["pk"])
         return blog.author == self.request.user or self.request.user.is_staff
 
