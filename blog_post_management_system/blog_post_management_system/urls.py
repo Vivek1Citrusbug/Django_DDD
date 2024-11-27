@@ -27,7 +27,7 @@ urlpatterns = [
     path("accounts/",include("accounts.urls")),
     path("blogs/",include("blogs.interface.urls")),
     path("comments/",include("comments.interface.urls")),
-    path("likes/",include("likes.urls")),
+    path("likes/",include("likes.interface.urls")),
 ]
 
 if settings.DEBUG:
