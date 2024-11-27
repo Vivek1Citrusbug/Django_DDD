@@ -24,13 +24,15 @@ class CommentListView(LoginRequiredMixin, ListView):
         self.CommentService = CommentAppService()
 
     def get_queryset(self):
-        post = self.PostsService.get_post_details(post_id=self.kwargs["pk"])
+        post = self.PostsService.get_post_details_application(post_id=self.kwargs["pk"])
         print("post printed : ", post.content, post.date_published, post.author)
         return self.CommentService.get_comments_application(self.kwargs["pk"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["post"] = self.PostsService.get_post_details(post_id=self.kwargs["pk"])
+        context["post"] = self.PostsService.get_post_details_application(
+            post_id=self.kwargs["pk"]
+        )
         return context
 
 
@@ -47,7 +49,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         self.CommentService = CommentAppService()
 
     def form_valid(self, form):
-        post = self.PostsService.get_post_details(post_id=self.kwargs["pk"])
+        post = self.PostsService.get_post_details_application(post_id=self.kwargs["pk"])
         form.instance.user_id = self.request.user
         form.instance.post_id = post
         return super().form_valid(form)
