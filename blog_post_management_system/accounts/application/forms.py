@@ -3,7 +3,7 @@ from django.core.validators import EmailValidator, MinLengthValidator
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.forms.widgets import PasswordInput, TextInput
-from .models import UserProfile
+from ..domain.models import UserProfile
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
 
