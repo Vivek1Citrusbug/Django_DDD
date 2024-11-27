@@ -10,33 +10,31 @@ from django.shortcuts import get_object_or_404
 from blogs.application.services import BlogPostAppService
 from comments.application.services import CommentAppService
 
+
 class CommentListView(LoginRequiredMixin, ListView):
     """This view is used to list user comments"""
 
     model = UserComments
     template_name = "comments/list_comments.html"
     context_object_name = "comments"
-    # services: CommentAppService
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.PostsService = BlogPostAppService()
+        self.CommentService = CommentAppService()
 
     def get_queryset(self):
-        # post = get_object_or_404(BlogPost, pk=self.kwargs["pk"])
-       
-        PostsService = BlogPostAppService()
-        CommentService = CommentAppService()
-        post = PostsService.get_post_details(post_id=self.kwargs["pk"]) 
-        print("post printed : ",post.content,post.date_published,post.author)
-        return CommentService.get_comments_application(self.kwargs["pk"])
-        # return UserComments.objects.filter(post_id=post).order_by("-date_posted")
-        
-    
+        post = self.PostsService.get_post_details_application(post_id=self.kwargs["pk"])
+        print("post printed : ", post.content, post.date_published, post.author)
+        return self.CommentService.get_comments_application(self.kwargs["pk"])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        PostService = BlogPostAppService()
-        context["post"] = PostService.get_post_details(post_id=self.kwargs["pk"])
-        # context["post"] = BlogPost.objects.get(id=self.kwargs["pk"])
-        # print("context post printed : ",context["post"])
+        context["post"] = self.PostsService.get_post_details_application(
+            post_id=self.kwargs["pk"]
+        )
         return context
-        
+
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     """This view is used to create new user comments"""
@@ -44,15 +42,16 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     model = UserComments
     template_name = "comments/create_comment.html"
     form_class = CommentForm
-    # service = BlogPostAppService()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.PostsService = BlogPostAppService()
+        self.CommentService = CommentAppService()
 
     def form_valid(self, form):
-        PostService = BlogPostAppService()
-        post = PostService.get_post_details(post_id=self.kwargs["pk"])
+        post = self.PostsService.get_post_details_application(post_id=self.kwargs["pk"])
         form.instance.user_id = self.request.user
         form.instance.post_id = post
-
-        # form.instance.post_id = BlogPost.objects.get(pk=self.kwargs["pk"])
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -65,6 +64,11 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = UserComments
     template_name = "comments/delete_comment.html"
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.PostsService = BlogPostAppService()
+        self.CommentService = CommentAppService()
+
     def get_success_url(self):
         return reverse_lazy("list_comment", kwargs={"pk": self.object.post_id.pk})
 
@@ -72,8 +76,7 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         """
         Ensure only the comment's author or admin can delete the comment.
         """
-        CommentService = CommentAppService()
         comment = self.get_object()
-        print("Comment ##################",comment)
-        return CommentService.delete_comment_application(comment,self.request.user)
-        # return self.request.user == comment.user_id or self.request.user.is_staff or self.request.user == comment.post_id.author
+        return self.CommentService.delete_comment_application(
+            comment, self.request.user
+        )

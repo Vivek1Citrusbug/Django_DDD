@@ -2,18 +2,19 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate, login, logout
-from .forms import CreateUserForm, LoginForm
+from accounts.application.forms import CreateUserForm, LoginForm
 from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, UpdateView
-from .models import UserProfile
-from .forms import UserProfileForm
+from accounts.domain.models import UserProfile
+from accounts.application.forms import UserProfileForm
 from django.contrib import messages
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
+from accounts.application.service import ProfileAppService
 
 
 class RegistrationView(FormView):
@@ -58,9 +59,12 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
     template_name = "accounts/profile.html"
     context_object_name = "profile"
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.service = ProfileAppService()
+
     def get_object(self):
-        profile, created = UserProfile.objects.get_or_create(user=self.request.user)
-        return profile
+        return self.service.get_profile_application(self.request.user)
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
@@ -70,9 +74,12 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     form_class = UserProfileForm
     template_name = "accounts/edit_profile.html"
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.service = ProfileAppService()
+
     def get_success_url(self):
         return reverse_lazy("profile")
 
     def get_object(self):
-        profile, created = UserProfile.objects.get_or_create(user=self.request.user)
-        return profile
+        return self.service.get_profile_application(self.request.user)
